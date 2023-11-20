@@ -1,0 +1,3 @@
+[submodule "YOLOv8-TensorRT"]
+	path = YOLOv8-TensorRT
+	url = https://github.com/triple-Mu/YOLOv8-TensorRT.git
