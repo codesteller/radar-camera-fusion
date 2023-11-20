@@ -2,7 +2,8 @@
 
 ## ToDo
 - [x] Video streaming from USB Camera 
-- [x] Object detection with Yolo V8s 
+- [x] Object detection with Yolo V8s  
+- [ ] Object detection refactoring using classes
 - [ ] tracking using OpenCV and ByteTracker
 - [ ] Interfacing Radar with TI AWR1843Boost Radar SDK
 - [ ] Object detection and tracking using Radar
