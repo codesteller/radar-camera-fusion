@@ -1,165 +1,148 @@
-//
-// Created by ubuntu on 1/20/23.
-//
+/**
+ * @ Author: Pallab Maji
+ * @ Create Time: 2023-11-20 15:52:48
+ * @ Modified time: 2023-11-22 11:16:36
+ * @ Description: Enter description here
+ */
 #include "main.h"
-
+#include "detection.cpp"
+#include <future>
+#include <tbb/tbb.h>
 
 int main(int argc, char **argv)
 {
-    // cuda:0
     cudaSetDevice(0);
-    bool isCamera{false};
-    bool isVideo{false};
-    
-    if (LOG_DEBUG_FLAG)
+
+    std::string engine_file_path;
+    std::vector<std::string> camera_device;
+
+    if (NUM_CAMERA == 2)
     {
-        if (argc < 3)
-        {
-            std::cout << "argc: " << argc << std::endl;
-            for (int i = 0; i < argc; ++i)
-            {
-                std::cout << "argv[" << i << "]: " << argv[i] << std::endl;
-            }
-            std::cout << "Usage: ./yolov8 <engine_file_path> <image_path>" << std::endl;
-            std::abort();
-        }
+        assert(argc == 4);
+        engine_file_path = argv[1];
+        camera_device.push_back(argv[2]);
+        camera_device.push_back(argv[3]);
     }
-    else
+    else if (NUM_CAMERA == 1)
     {
         assert(argc == 3);
-    }
-
-    const std::string engine_file_path{argv[1]};
-
-    const std::string path{argv[2]};
-
-    if (path == "/dev/video0")
-    {
-        std::cout << "Using camera: " << path << std::endl;
-        isCamera = true;
+        engine_file_path = argv[1];
+        camera_device.push_back(argv[2]);
     }
     else
     {
-        std::cout << "Using Images or Video: " << path << std::endl;
-    }
-
-    std::vector<std::string> imagePathList;
-
-    auto yolov8 = new YOLOv8(engine_file_path);
-    yolov8->make_pipe(true);
-
-    if (IsFile(path))
-    {
-        std::string suffix = path.substr(path.find_last_of('.') + 1);
-        if (suffix == "jpg" || suffix == "jpeg" || suffix == "png")
+        if (LOG_DEBUG_FLAG)
         {
-            imagePathList.push_back(path);
-        }
-        else if (suffix == "mp4" || suffix == "avi" || suffix == "m4v" || suffix == "mpeg" || suffix == "mov" || suffix == "mkv")
-        {
-            isVideo = true;
+            if (argc < 3)
+            {
+                std::cout << "argc: " << argc << std::endl;
+                for (int i = 0; i < argc; ++i)
+                {
+                    std::cout << "argv[" << i << "]: " << argv[i] << std::endl;
+                }
+                std::cout << "Usage: ./adas_fusion <engine_file_path> <camera devices>" << std::endl;
+                std::abort();
+            }
         }
         else
         {
-            printf("suffix %s is wrong !!!\n", suffix.c_str());
+            std::cout << "Invalid number of camera devices" << std::endl;
+            std::cout << "Usage: ./adas_fusion <engine_file_path> <camera devices>" << std::endl;
             std::abort();
         }
     }
-    else if (IsFolder(path))
+
+    if (LOG_DEBUG_FLAG)
     {
-        cv::glob(path + "/*.jpg", imagePathList);
+        std::cout << "Model File Path: " << engine_file_path << std::endl;
+        std::cout << "Camera Device: " << camera_device[0] << std::endl;
+        if (NUM_CAMERA == 2)
+            std::cout << "Camera Device: " << camera_device[1] << std::endl;
     }
 
-    cv::Mat res, image;
-    cv::Size size = cv::Size{640, 640};
-    std::vector<Object> objs;
+    std::vector<adas::CameraPipeline> cameraPipelines;
 
-    cv::namedWindow("Input Frames", cv::WINDOW_AUTOSIZE);
-    cv::namedWindow("Detection Output", cv::WINDOW_AUTOSIZE);
-
-    if (isVideo)
+    for (int i = 0; i < NUM_CAMERA; ++i)
     {
-        cv::VideoCapture cap(path);
-
-        if (!cap.isOpened())
-        {
-            printf("can not open %s\n", path.c_str());
-            return -1;
-        }
-        while (cap.read(image))
-        {
-            objs.clear();
-            yolov8->copy_from_Mat(image, size);
-            auto start = std::chrono::system_clock::now();
-            yolov8->infer();
-            auto end = std::chrono::system_clock::now();
-            yolov8->postprocess(objs);
-            yolov8->draw_objects(image, res, objs, CLASS_NAMES, COLORS);
-            auto tc = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.;
-            printf("cost %2.4lf ms\n", tc);
-            cv::imshow("Detection Output", res);
-            if (cv::waitKey(10) == 'q')
-            {
-                break;
-            }
-        }
+        cameraPipelines.push_back(adas::CameraPipeline(camera_device[i]));
     }
-    else if (isCamera)
-    {
-        cv::VideoCapture cap(path);
-        // if not success, exit program
-        if (cap.isOpened() == false)
-        {
-            std::cout << "Cannot open the video camera" << path << std::endl;
-            std::abort();
-        }
 
-        double dWidth = cap.get(cv::CAP_PROP_FRAME_WIDTH);   // get the width of frames of the video
-        double dHeight = cap.get(cv::CAP_PROP_FRAME_HEIGHT); // get the height of frames of the video
+    // std::thread thread_obj(cameraPipelines[0].getFrame());
 
-        std::cout << "Resolution of the video : " << dWidth << " x " << dHeight << std::endl;
+    
 
-        while (cap.read(image))
-        {
-            objs.clear();
-            yolov8->copy_from_Mat(image, size);
-            auto start = std::chrono::system_clock::now();
-            yolov8->infer();
-            auto end = std::chrono::system_clock::now();
-            yolov8->postprocess(objs);
-            yolov8->draw_objects(image, res, objs, CLASS_NAMES, COLORS);
-            auto tc = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.;
-            printf("cost %2.4lf ms\n", tc);
-            cv::imshow("Detection Output", res);
-            if (cv::waitKey(10) == 'q')
+    // std::thread t0([&cameraPipelines, &engine_file_path]() {
+    //     auto frame = cameraPipelines[0].getFrame();
+    //     cameraPipelines[0].displayFrame();
+    // });
+
+    // std::thread t1([&cameraPipelines, &engine_file_path]() {
+    //     auto frame = cameraPipelines[1].getFrame();
+    //     // cameraPipelines[1].displayFrame();
+    // });
+
+    // t0.join();
+    // t1.join();
+
+    oneapi::tbb::task_group tg;
+
+    tg.run([&cameraPipelines, &engine_file_path]()
+           {
+               while (true)
+               {
+                   auto frame_0 = cameraPipelines[0].getFrame();
+                   // cameraPipelines[0].displayFrame();
+                   cv::imshow("frame_0", frame_0);
+                   if (cv::waitKey(1) == 27)
+                   {
+                       break;
+                   }
+               } });
+
+    tg.run([&cameraPipelines, &engine_file_path]()
+           {
+        
+            while (true)
             {
-                break;
-            }
-        }
-    }     // end Else If isCamera
-    else
-    {
-        for (auto &path : imagePathList)
-        {
-            objs.clear();
-            image = cv::imread(path);
-            yolov8->copy_from_Mat(image, size);
-            auto start = std::chrono::system_clock::now();
-            yolov8->infer();
-            auto end = std::chrono::system_clock::now();
-            yolov8->postprocess(objs);
-            yolov8->draw_objects(image, res, objs, CLASS_NAMES, COLORS);
-            auto tc = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.;
-            printf("cost %2.4lf ms\n", tc);
-            cv::imshow("Detection Output", res);
-            // cv::waitKey(0);
-            if (cv::waitKey(10) == 'q')
-            {
-                break;
-            }
-        }
-    }
-    cv::destroyAllWindows();
-    delete yolov8;
+                auto frame_1 = cameraPipelines[1].getFrame();
+                // cameraPipelines[0].displayFrame();
+                // cv::imshow("frame_1", frame_1);
+                if (cv::waitKey(1) == 27)
+                {
+                    break;
+                }
+            } });
+
+    // tg.wait();
+
     return 0;
 }
+
+
+// #include "main.h"
+// #include "detection.cpp"
+
+// int main()
+// {
+//     std::vector<int> camera_index = {0, 2};
+//     std::vector<std::string> camera_device = {"/dev/video0", "/dev/video2"};
+
+//     std::vector<std::string> label;
+
+//     adas::CameraStreamer cam(camera_index);
+
+//     while (cv::waitKey(20) != 27)
+//     {
+//         // Retrieve frames from each camera capture thread
+//         for (int i = 0; i < camera_index.size(); i++)
+//         {
+//             cv::Mat frame;
+//             // Pop frame from queue and check if the frame is valid
+//             if (cam.frame_queue[i]->try_pop(frame))
+//             {
+//                 // Show frame on Highgui window
+//                 cv::imshow(label[i], frame);
+//             }
+//         }
+//     }
+// }

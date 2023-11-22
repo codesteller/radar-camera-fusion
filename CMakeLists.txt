@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.20)
 project(adas_fusion)
 
+# cmake_policy(SET CMP0146 OLD)
+
 set(CMAKE_CUDA_ARCHITECTURES 60 61 62 70 72 75 86 89 90)
 set(CMAKE_CUDA_COMPILER /usr/local/cuda/bin/nvcc)
 
@@ -11,28 +13,38 @@ option(CUDA_USE_STATIC_CUDA_RUNTIME OFF)
 
 # CUDA
 find_package(CUDA REQUIRED)
-message(STATUS "CUDA Libs: \n${CUDA_LIBRARIES}\n")
+# message(STATUS "CUDA Libs: \n${CUDA_LIBRARIES}\n")
 get_filename_component(CUDA_LIB_DIR ${CUDA_LIBRARIES} DIRECTORY)
-message(STATUS "CUDA Headers: \n${CUDA_INCLUDE_DIRS}\n")
+# message(STATUS "CUDA Headers: \n${CUDA_INCLUDE_DIRS}\n")
 
 # Opencv
 set(OpenCV_DIR /home/pallab/Apsoft/dev-utils/cv2/installation/OpenCV-4.8.1/lib/cmake/opencv4/)
 find_package(OpenCV REQUIRED)
-message(STATUS "OpenCV Libs: \n${OpenCV_LIBS}\n")
-message(STATUS "OpenCV Libraries: \n${OpenCV_LIBRARIES}\n")
-message(STATUS "OpenCV Headers: \n${OpenCV_INCLUDE_DIRS}\n")
+# message(STATUS "OpenCV Libs: \n${OpenCV_LIBS}\n")
+# message(STATUS "OpenCV Libraries: \n${OpenCV_LIBRARIES}\n")
+# message(STATUS "OpenCV Headers: \n${OpenCV_INCLUDE_DIRS}\n")
 
 # TensorRT
 set(TensorRT_DIR /opt/nvidia/TensorRT-8.6.1.6)
 set(TensorRT_INCLUDE_DIRS ${TensorRT_DIR}/include)
 set(TensorRT_LIBRARIES ${TensorRT_DIR}/lib)
-message(STATUS "TensorRT Libs: \n${TensorRT_LIBRARIES}\n")
-message(STATUS "TensorRT Headers: \n${TensorRT_INCLUDE_DIRS}\n")
+# message(STATUS "TensorRT Libs: \n${TensorRT_LIBRARIES}\n")
+# message(STATUS "TensorRT Headers: \n${TensorRT_INCLUDE_DIRS}\n")
+
+# TBB
+set(TBB_DIR /opt/intel/oneTBB/libs/cmake/TBB/)
+find_package(TBB CONFIG REQUIRED tbb)
+set(TBB_LIBS TBB::tbb)
+# message(STATUS "TBB Libs: ${TBB_LIBS}\n")
+set(TBB_INSTALL_DIR /opt/intel/oneTBB)
+set(TBB_INCLUDE_DIRS ${TBB_INSTALL_DIR}/include)
+set(TBB_LIBRARIES ${TBB_INSTALL_DIR}/lib)
 
 list(APPEND INCLUDE_DIRS
         ${CUDA_INCLUDE_DIRS}
         ${OpenCV_INCLUDE_DIRS}
         ${TensorRT_INCLUDE_DIRS}
+        ${TBB_INCLUDE_DIRS}
         include
         )
 
@@ -41,6 +53,7 @@ list(APPEND ALL_LIBS
         ${CUDA_LIB_DIR}
         ${OpenCV_LIBRARIES}
         ${TensorRT_LIBRARIES}
+        ${TBB_LIBRARIES}
         )
 
 include_directories(${INCLUDE_DIRS})
@@ -51,5 +64,5 @@ add_executable(${PROJECT_NAME}
         include/common.hpp
         )
 
-        target_link_directories(${PROJECT_NAME} PUBLIC ${ALL_LIBS})
-        target_link_libraries(${PROJECT_NAME} PRIVATE nvinfer nvinfer_plugin cudart ${OpenCV_LIBS})
+target_link_directories(${PROJECT_NAME} PUBLIC ${ALL_LIBS})
+target_link_libraries(${PROJECT_NAME} PRIVATE nvinfer nvinfer_plugin cudart ${TBB_LIBS} ${OpenCV_LIBS})
