@@ -1,7 +1,7 @@
 /**
  * @ Author: Pallab Maji
  * @ Create Time: 2023-11-20 15:29:23
- * @ Modified time: 2023-11-22 11:05:12
+ * @ Modified time: 2023-12-04 13:36:33
  * @ Description: Enter description here
  */
 #include "detection.h"
@@ -53,8 +53,14 @@ void adas::CameraPipeline::displayFrame()
         {
             break;
         }
+        // std::cout << "FPS: " << this->m_capture.get(cv::) << std::endl;
     }
 }
+
+
+/*
+    Camera Streamer Object
+*/
 
 adas::CameraStreamer::CameraStreamer(std::vector<std::string> stream_source)
 {
@@ -89,7 +95,8 @@ void adas::CameraStreamer::captureFrame(int index)
         (*capture) >> frame;
         // Put frame to the queuestring
         frame_queue[index]->push(frame);
-        // relase frame resource
+        // 
+        // release frame resource
         frame.release();
     }
 }
@@ -124,7 +131,10 @@ void adas::CameraStreamer::startMultiCapture()
             }
 
             // capture = new cv::VideoCapture(idx);
-            capture = new cv::VideoCapture(camera_device);
+            // capture = new cv::VideoCapture(camera_device, cv::CAP_V4L2);
+            capture = new cv::VideoCapture(camera_device, cv::CAP_V4L2);
+            capture->set(cv::CAP_PROP_FRAME_WIDTH, 1920);
+            capture->set(cv::CAP_PROP_FRAME_HEIGHT, 1080);
             std::cout << "Camera Setup: " << camera_device << std::endl;
         }
 
