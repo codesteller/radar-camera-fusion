@@ -1,7 +1,7 @@
 /**
  * @ Author: Pallab Maji
  * @ Create Time: 2023-11-20 14:32:08
- * @ Modified time: 2023-12-04 13:51:54
+ * @ Modified time: 2023-12-05 10:23:34
  * @ Description: Enter description here
  */
 
@@ -61,12 +61,12 @@ namespace adas
     class CameraPipeline
     {
     public:
-        std::string m_camera_device;
+        int m_camera_device;
         cv::VideoCapture m_capture;
         std::string m_window_name_prefix;
 
-        CameraPipeline(const std::string camera_device, const std::string window_name_prefix);
-        CameraPipeline(const std::string camera_device);
+        CameraPipeline(const int camera_device, const std::string window_name_prefix);
+        CameraPipeline(const int camera_device);
         ~CameraPipeline();
 
         cv::Mat getFrame();
@@ -92,17 +92,21 @@ namespace adas
         std::vector<oneapi::tbb::concurrent_queue<cv::Mat> *> frame_queue;
         // this holds thread(s) which run the camera capture process
         std::vector<std::thread *> camera_thread;
-
+        // this holds the camera configuration file path
+        std::vector<std::string> camera_calib_file_paths;
         // Constructor for Camera Device or RTSP URL capture
         CameraStreamer(std::vector<std::string> source);
         // Constructor for USB Camera capture
         CameraStreamer(std::vector<int> index);
+        // Constructor for USB Camera capture with calibration file
+        CameraStreamer(std::vector<int> index, std::vector<std::string> camera_calib_file_path);
         // Destructor for releasing resource(s)
         ~CameraStreamer();
         
 
     private:
         bool isUSBCamera;
+        bool doRectify;
         int camera_count;
         // initialize and start the camera capturing process(es)
         void startMultiCapture();
@@ -111,7 +115,7 @@ namespace adas
         // main camera capturing process which will be done by the thread(s)
         void captureFrame(int index);
         // Camera Frame Rectifier
-        void read_config_file(std::string config_file_path);
+        void load_calibration(void);
         void rectifyFrame(void);
 
     }; // class CameraStreamer

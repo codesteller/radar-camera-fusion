@@ -1,0 +1,26 @@
+image_width: 640
+image_height: 640
+camera_name: PINHOLE
+camera_matrix:
+  rows: 3
+  cols: 3
+  data: [433.22709,   0.     , 320.49389,
+           0.     , 818.88484, 331.56106,
+           0.     ,   0.     ,   1.     ]
+distortion_model: plumb_bob
+distortion_coefficients:
+  rows: 1
+  cols: 5
+  data: [-0.397829, 0.161214, -0.003820, -0.000863, -0.030914]
+rectification_matrix:
+  rows: 3
+  cols: 3
+  data: [1., 0., 0.,
+         0., 1., 0.,
+         0., 0., 1.]
+projection_matrix:
+  rows: 3
+  cols: 4
+  data: [317.22103,   0.     , 319.35247,   0.     ,
+           0.     , 766.20729, 331.4611 ,   0.     ,
+           0.     ,   0.     ,   1.     ,   0.     ]

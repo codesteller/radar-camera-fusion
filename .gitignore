@@ -135,8 +135,9 @@ dmypy.json
 
 
 
-# Folders
+# Folders & Files to ignore
 logs
 results
 .idea
 .vscode
+*.zip
