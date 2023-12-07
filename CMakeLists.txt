@@ -67,6 +67,7 @@ list(APPEND INCLUDE_DIRS
         include
         )
 
+link_libraries(stdc++fs)
 list(APPEND ALL_LIBS
         ${CUDA_LIBRARIES}
         ${CUDA_LIB_DIR}
@@ -87,6 +88,8 @@ add_executable(${PROJECT_NAME}
         src/STrack.cpp 
         src/lapjv.cpp
         src/KalmanFilter.cpp
+        src/birdview_model.cpp 
+        src/camera_model.cpp
         )
 
 target_link_directories(${PROJECT_NAME} PUBLIC ${ALL_LIBS})

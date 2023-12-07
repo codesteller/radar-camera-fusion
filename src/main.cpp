@@ -1,7 +1,7 @@
 /**
  * @ Author: Pallab Maji
  * @ Create Time: 2023-11-20 13:11:32
- * @ Modified time: 2023-12-07 11:56:04
+ * @ Modified time: 2023-12-07 20:40:33
  * @ Description: Enter description here
  */
 
@@ -40,8 +40,17 @@ int main(int argc, char **argv) {
 
   std::vector<std::string> imagePathList;
 
+  // Setup the Model
   auto yolov8 = new YOLOv8(engine_file_path);
   yolov8->make_pipe(true);
+
+  // Setup the BEV Camera Model
+  // Setup Camera Model
+  CameraModel camera_model;
+  const auto bev_model = camera_model.getBirdViewModel();
+
+  bev_model->make_bev_matrix();
+
 
   if (IsFile(path)) {
     std::string suffix = path.substr(path.find_last_of('.') + 1);
@@ -65,6 +74,8 @@ int main(int argc, char **argv) {
   cv::namedWindow("Input Frames", cv::WINDOW_AUTOSIZE);
   cv::namedWindow("Detection Output", cv::WINDOW_AUTOSIZE);
   cv::namedWindow("Tracker Output", cv::WINDOW_AUTOSIZE);
+
+  
 
   if (isVideo) {
     cv::VideoCapture cap(path);
@@ -186,19 +197,43 @@ int main(int argc, char **argv) {
 
       // Update tracker
       const auto outputs = tracker.update(objs_st);
+      std::vector<float> distances;
 
       for (auto &output : outputs) {
+        
         const auto &rect = output->getRect();
         const auto &track_id = output->getTrackId();
         std::cout << "Object: " << rect.x() << " " << rect.y() << " "
                   << rect.width() << " " << rect.height() << " " << track_id
                   << " "
                   << "1.0" << std::endl;
+        // TODO : Refactor later; for testing only
+
+        std::vector<cv::Point2f> points;
+        points.push_back(cv::Point2f(
+            static_cast<float>(rect.x()) / dWidth, 
+            static_cast<float>(rect.y() + rect.height()) / dHeight));
+        points.push_back(cv::Point2f(
+            static_cast<float>(rect.x() + rect.width()) / dWidth, 
+            static_cast<float>(rect.y() + rect.height()) / dHeight));
+
+        std::vector<cv::Point2f> transformed_points;
+        bev_model->transformPoints(points, transformed_points);
+
+        float max_y = std::max({transformed_points[0].y,
+            transformed_points[1].y
+        });
+
+        float distance = bev_model->getDistanceToCar(max_y);
+        distances.push_back(distance);
+
+        std::cout << "Distance: " << distance << std::endl;
       }
+      
 
       // Draw Objects on Tracked Frame
       adas::draw_tracked_objects(frame_rectified, frame_tracked, outputs, objs,
-                                 adas::CLASS_NAMES, adas::COLORS);
+                                 adas::CLASS_NAMES, adas::COLORS, distances);
 
       /*
               Final Inference Time Calculation and Display
