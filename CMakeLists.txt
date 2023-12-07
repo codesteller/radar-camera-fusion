@@ -7,8 +7,8 @@ set(CMAKE_CUDA_ARCHITECTURES 60 61 62 70 72 75 86 89 90)
 set(CMAKE_CUDA_COMPILER /usr/local/cuda/bin/nvcc)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -O3")
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_CXX_STANDARD 17)
+# set(CMAKE_BUILD_TYPE Release)
 option(CUDA_USE_STATIC_CUDA_RUNTIME OFF)
 
 # CUDA
@@ -30,6 +30,25 @@ set(TensorRT_INCLUDE_DIRS ${TensorRT_DIR}/include)
 set(TensorRT_LIBRARIES ${TensorRT_DIR}/lib)
 # message(STATUS "TensorRT Libs: \n${TensorRT_LIBRARIES}\n")
 # message(STATUS "TensorRT Headers: \n${TensorRT_INCLUDE_DIRS}\n")
+
+# YAML-CPP
+set(YAML-CPP_DIR /home/pallab/Apsoft/dev-utils/yaml-parser/yaml-cpp/install/lib/cmake/yaml-cpp/)
+find_package(YAML-CPP REQUIRED)
+message(STATUS "YAML-CPP Libs: ${YAML_CPP_LIBRARIES}\n")
+
+# Eigen
+set(EIGEN_VERSION 3.3)
+find_package(Eigen3 ${EIGEN_VERSION} QUIET)
+if(NOT EIGEN3_FOUND)
+  set(BUILD_TESTING OFF CACHE INTERNAL "")
+  FetchContent_Declare(eigen
+    GIT_REPOSITORY  https://gitlab.com/libeigen/eigen.git
+    GIT_TAG         ${EIGEN_VERSION}
+    GIT_SHALLOW     ON)
+  FetchContent_MakeAvailable(eigen)
+  unset(BUILD_TESTING CACHE)
+endif()
+
 
 # TBB
 set(TBB_DIR /opt/intel/oneTBB/libs/cmake/TBB/)
@@ -62,7 +81,13 @@ add_executable(${PROJECT_NAME}
         src/main.cpp
         include/yolov8.hpp
         include/common.hpp
+        src/BYTETracker.cpp
+        src/Object.cpp 
+        src/Rect.cpp 
+        src/STrack.cpp 
+        src/lapjv.cpp
+        src/KalmanFilter.cpp
         )
 
 target_link_directories(${PROJECT_NAME} PUBLIC ${ALL_LIBS})
-target_link_libraries(${PROJECT_NAME} PRIVATE nvinfer nvinfer_plugin cudart ${TBB_LIBS} ${OpenCV_LIBS})
+target_link_libraries(${PROJECT_NAME} PRIVATE nvinfer nvinfer_plugin cudart ${TBB_LIBS} ${OpenCV_LIBS} ${YAML_CPP_LIBRARIES} Eigen3::Eigen)

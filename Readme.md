@@ -2,14 +2,17 @@
 
 ## ToDo
 - [x] Video streaming from USB Camera 
+- [x] Multi-Camera streaming from multiple USB Cameras (Multi Threaded)
 - [x] Object detection with Yolo V8s  
 - [ ] Object detection refactoring using classes
-- [ ] tracking using OpenCV and ByteTracker
+- [x] tracking using OpenCV and ByteTracker
 - [ ] Interfacing Radar with TI AWR1843Boost Radar SDK
 - [ ] Object detection and tracking using Radar
 - [ ] Radar-Video Soft Synchronization
-- [ ] Video BEV Projection
+- [x] Video BEV Projection
 - [ ] Radar-Video Calibration
+- [ ] Radar-Video Fusion
+- [ ] Multi Threaded Optimization
 
 ## Overview 
 This code implements the fusion of radar data from the TI AWR1843Boost Radar and video data from a USB camera. The radar data is processed to detect and track objects in the environment, while the video data is used to provide visual information about the detected objects. The fusion of radar and video data enhances the accuracy and reliability of object detection and tracking.
