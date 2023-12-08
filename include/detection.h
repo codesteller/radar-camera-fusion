@@ -1,7 +1,7 @@
 /**
  * @ Author: Pallab Maji
  * @ Create Time: 2023-11-20 14:32:08
- * @ Modified time: 2023-12-05 10:23:34
+ * @ Modified time: 2023-12-08 10:58:01
  * @ Description: Enter description here
  */
 
@@ -17,9 +17,7 @@
 #include <opencv2/opencv.hpp>
 #include "yolov8.hpp"
 #include "opencv2/highgui.hpp"
-
-#define LOG_DEBUG_FLAG 1
-#define CAM_DEVICE "/dev/video0"
+#include "utils.hpp"
 
 namespace adas
 {

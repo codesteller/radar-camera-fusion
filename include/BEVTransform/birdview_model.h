@@ -6,6 +6,8 @@
 #include <mutex>
 #include "four_points.h"
 
+#define LOG_DEBUG_FLAG false
+
 class BirdViewModel {
 
     static constexpr int kBirdviewImgWidth = 1000;

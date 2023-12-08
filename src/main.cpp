@@ -1,7 +1,7 @@
 /**
  * @ Author: Pallab Maji
  * @ Create Time: 2023-11-20 13:11:32
- * @ Modified time: 2023-12-07 20:40:33
+ * @ Modified time: 2023-12-08 11:12:38
  * @ Description: Enter description here
  */
 
@@ -51,7 +51,6 @@ int main(int argc, char **argv) {
 
   bev_model->make_bev_matrix();
 
-
   if (IsFile(path)) {
     std::string suffix = path.substr(path.find_last_of('.') + 1);
     if (suffix == "jpg" || suffix == "jpeg" || suffix == "png") {
@@ -71,11 +70,12 @@ int main(int argc, char **argv) {
   cv::Size size = cv::Size{640, 640};
   std::vector<Object> objs;
 
-  cv::namedWindow("Input Frames", cv::WINDOW_AUTOSIZE);
-  cv::namedWindow("Detection Output", cv::WINDOW_AUTOSIZE);
-  cv::namedWindow("Tracker Output", cv::WINDOW_AUTOSIZE);
-
-  
+  if (LOG_DEBUG_FLAG) {
+    cv::namedWindow("Input Frames", cv::WINDOW_AUTOSIZE);
+    cv::namedWindow("Detection Output", cv::WINDOW_AUTOSIZE);
+    cv::namedWindow("Tracker Output", cv::WINDOW_AUTOSIZE);
+  }
+  cv::namedWindow("Output", cv::WINDOW_AUTOSIZE);
 
   if (isVideo) {
     cv::VideoCapture cap(path);
@@ -120,8 +120,9 @@ int main(int argc, char **argv) {
     double dHeight = cap.get(
         cv::CAP_PROP_FRAME_HEIGHT);  // get the height of frames of the video
 
-    std::cout << "Resolution of the video : " << dWidth << " x " << dHeight
-              << std::endl;
+    if (LOG_DEBUG_FLAG)
+      std::cout << "[INFO] Resolution of the video : " << dWidth << " x "
+                << dHeight << std::endl;
 
     // Load Calibration Parameters
     std::string calibration_file_path =
@@ -144,9 +145,6 @@ int main(int argc, char **argv) {
         std::cout << "[ERROR] Video camera is disconnected" << std::endl;
         std::abort();
       }
-
-      std::cout << "[INFO] Resolution of the video : " << dWidth << " x "
-                << dHeight << std::endl;
 
       // Undistort the image
       auto start_full = std::chrono::system_clock::now();
@@ -181,9 +179,10 @@ int main(int argc, char **argv) {
       // Convert Objects to STrackPtr
       std::vector<byte_track::Object> objs_st = {};
       for (auto &obj : objs) {
-        std::cout << "Object: " << obj.rect.x << " " << obj.rect.y << " "
-                  << obj.rect.width << " " << obj.rect.height << " "
-                  << obj.label << " " << obj.prob << std::endl;
+        if (LOG_DEBUG_FLAG)
+          std::cout << "Object: " << obj.rect.x << " " << obj.rect.y << " "
+                    << obj.rect.width << " " << obj.rect.height << " "
+                    << obj.label << " " << obj.prob << std::endl;
         byte_track::Object obj_st(
             byte_track::Rect(obj.rect.x, obj.rect.y, obj.rect.width,
                              obj.rect.height),
@@ -200,36 +199,33 @@ int main(int argc, char **argv) {
       std::vector<float> distances;
 
       for (auto &output : outputs) {
-        
         const auto &rect = output->getRect();
         const auto &track_id = output->getTrackId();
-        std::cout << "Object: " << rect.x() << " " << rect.y() << " "
-                  << rect.width() << " " << rect.height() << " " << track_id
-                  << " "
-                  << "1.0" << std::endl;
+        if (LOG_DEBUG_FLAG)
+          std::cout << "Object: " << rect.x() << " " << rect.y() << " "
+                    << rect.width() << " " << rect.height() << " " << track_id
+                    << " "
+                    << "1.0" << std::endl;
         // TODO : Refactor later; for testing only
 
         std::vector<cv::Point2f> points;
         points.push_back(cv::Point2f(
-            static_cast<float>(rect.x()) / dWidth, 
+            static_cast<float>(rect.x()) / dWidth,
             static_cast<float>(rect.y() + rect.height()) / dHeight));
         points.push_back(cv::Point2f(
-            static_cast<float>(rect.x() + rect.width()) / dWidth, 
+            static_cast<float>(rect.x() + rect.width()) / dWidth,
             static_cast<float>(rect.y() + rect.height()) / dHeight));
 
         std::vector<cv::Point2f> transformed_points;
         bev_model->transformPoints(points, transformed_points);
 
-        float max_y = std::max({transformed_points[0].y,
-            transformed_points[1].y
-        });
+        float max_y =
+            std::max({transformed_points[0].y, transformed_points[1].y});
 
         float distance = bev_model->getDistanceToCar(max_y);
         distances.push_back(distance);
-
-        std::cout << "Distance: " << distance << std::endl;
+        if (LOG_DEBUG_FLAG) std::cout << "Distance: " << distance << std::endl;
       }
-      
 
       // Draw Objects on Tracked Frame
       adas::draw_tracked_objects(frame_rectified, frame_tracked, outputs, objs,
@@ -245,19 +241,31 @@ int main(int argc, char **argv) {
 
       // Draw Frame Rate on Detection Output
       cv::putText(frame_det, str, cv::Point(50, 50), cv::FONT_HERSHEY_DUPLEX, 1,
-                  cv::Scalar(0, 255, 0), 2, false);
+                  cv::Scalar(0, 255, 255), 2, false);
       cv::putText(frame_det, str_full, cv::Point(50, 100),
-                  cv::FONT_HERSHEY_DUPLEX, 1, cv::Scalar(0, 255, 0), 2, false);
+                  cv::FONT_HERSHEY_DUPLEX, 1, cv::Scalar(0, 255, 255), 2,
+                  false);
 
-      std::cout << str << std::endl;
-      std::cout << str_full << std::endl;
-      std::cout << "-------------------------" << std::endl;
+      if (LOG_DEBUG_FLAG) {
+        std::cout << str << std::endl;
+        std::cout << str_full << std::endl;
+        std::cout << "-------------------------" << std::endl;
+      }
 
-      cv::imshow("Detection Output", frame_det);
-      cv::imshow("Input Frames", frame_rectified);
-      cv::imshow("Tracker Output", frame_tracked);
+      // Merge and resize all the frames to fit the window keeping aspect ratio
 
-      std::cout << "-------------------------" << std::endl;
+      cv::Mat frame_merged, frame_merged_resized;
+      cv::hconcat(frame_det, frame_tracked, frame_merged);
+      cv::resize(frame_merged, frame_merged_resized,
+                 cv::Size(1920, int(1080 / 2)), 0, 0, cv::INTER_LINEAR);
+
+      if (LOG_DEBUG_FLAG) {
+        cv::imshow("Detection Output", frame_det);
+        cv::imshow("Input Frames", frame_rectified);
+        cv::imshow("Tracker Output", frame_tracked);
+      }
+      cv::imshow("Output", frame_merged_resized);
+
       if (cv::waitKey(1) == 'q') {
         break;
       }
