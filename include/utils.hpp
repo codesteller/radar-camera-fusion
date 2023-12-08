@@ -1,7 +1,7 @@
 /**
  * @ Author: Pallab Maji
  * @ Create Time: 2023-11-20 13:57:59
- * @ Modified time: 2023-12-07 20:40:24
+ * @ Modified time: 2023-12-08 11:18:09
  * @ Description: Enter description here
  */
 
@@ -20,7 +20,7 @@
 #include "opencv2/opencv.hpp"
 #include "BEVTransform/camera_model.h"
 
-#define LOG_DEBUG_FLAG 1
+#define LOG_DEBUG_FLAG 0
 // #define NUM_CAMERA 2
 
 namespace adas {
@@ -86,8 +86,9 @@ void draw_tracked_objects(
   dest_image = image.clone();
   unsigned int idx = 0;
 
-  std::cout << "tracked_objects.size(): " << tracked_objects.size() << std::endl;
-  std::cout << "detected_obj.size(): " << detected_objs.size() << std::endl;
+  if (LOG_DEBUG_FLAG)
+  {std::cout << "tracked_objects.size(): " << tracked_objects.size() << std::endl;
+  std::cout << "detected_obj.size(): " << detected_objs.size() << std::endl;}
   
   std::string class_name = "Object";
   for (auto &obj : tracked_objects) {
@@ -116,13 +117,13 @@ void draw_tracked_objects(
           cv::Point(rect.x() + rect.width(), rect.y() + rect.height()),
           color, 2);
       cv::putText(dest_image, std::to_string(track_id) + " @ " + std::to_string(distances[idx]) + "m",
-                  cv::Point(rect.x(), rect.y()), cv::FONT_HERSHEY_COMPLEX, 1,
-                  cv::Scalar(0, 255, 0), 2);
+                  cv::Point(rect.x() + rect.width()/2, rect.y() + rect.height()/2), cv::FONT_HERSHEY_SCRIPT_SIMPLEX, 0.8,
+                  cv::Scalar(128, 0, 255), 2);
     
     } else if (state == byte_track::STrackState::Lost) {
-      std::cout << "Lost Track ID: "<< track_id << std::endl;
+      if (LOG_DEBUG_FLAG) {std::cout << "Lost Track ID: "<< track_id << std::endl;}
     } else if (state == byte_track::STrackState::Removed) {
-      std::cout << "Removed Track ID: "<< track_id << std::endl;
+      if (LOG_DEBUG_FLAG) {std::cout << "Removed Track ID: "<< track_id << std::endl;}
     }
     
     idx++;

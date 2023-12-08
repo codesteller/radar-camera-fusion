@@ -1,7 +1,7 @@
 /**
  * @ Author: Pallab Maji
  * @ Create Time: 2023-11-20 15:29:23
- * @ Modified time: 2023-12-08 10:57:14
+ * @ Modified time: 2023-12-08 10:58:59
  * @ Description: Enter description here
  */
 #include "detection.h"
@@ -10,7 +10,7 @@ adas::CameraPipeline::CameraPipeline(const int camera_device)
     : m_camera_device(camera_device) {
   this->m_capture = cv::VideoCapture(m_camera_device);
   if (!m_capture.isOpened()) {
-    std::cout << "Failed to open camera: " << this->m_camera_device
+    std::cout << "[ERROR] Failed to open camera: " << this->m_camera_device
               << std::endl;
     std::abort();
   }
@@ -24,7 +24,7 @@ adas::CameraPipeline::CameraPipeline(const int camera_device,
   this->m_camera_device = camera_device;
   this->m_capture = cv::VideoCapture(m_camera_device);
   if (!m_capture.isOpened()) {
-    std::cout << "Failed to open camera: " << this->m_camera_device
+    std::cout << "[ERROR] Failed to open camera: " << this->m_camera_device
               << std::endl;
     std::abort();
   }
@@ -40,15 +40,15 @@ cv::Mat adas::CameraPipeline::getFrame() {
 }
 
 void adas::CameraPipeline::displayFrame() {
-  std::cout << "Displaying frame from camera: " << this->m_camera_device
-            << std::endl;
+  if (LOG_DEBUG_FLAG)
+    std::cout << "Displaying frame from camera: " << this->m_camera_device
+              << std::endl;
   while (true) {
     this->getFrame();
     cv::imshow(this->m_window_name, this->m_frame);
     if (cv::waitKey(1) == 27) {
       break;
     }
-    // std::cout << "FPS: " << this->m_capture.get(cv::) << std::endl;
   }
 }
 
@@ -73,18 +73,20 @@ adas::CameraStreamer::CameraStreamer(std::vector<int> capture_index) {
   startMultiCapture();
 }
 
-adas::CameraStreamer::CameraStreamer(std::vector<int> capture_index, std::vector<std::string> file_paths) {
+adas::CameraStreamer::CameraStreamer(std::vector<int> capture_index,
+                                     std::vector<std::string> file_paths) {
   camera_index = capture_index;
   camera_count = capture_index.size();
   isUSBCamera = true;
   this->camera_calib_file_paths = file_paths;
-  if (LOG_DEBUG_LEVEL)}{
+  if (LOG_DEBUG_FLAG) {
     for (int i = 0; i < camera_count; i++) {
-    std::cout << "[INFO] Camera Calibration File Path: " << this->camera_calib_file_paths[i] << std::endl;
-  }
+      std::cout << "[INFO] Camera Calibration File Path: "
+                << this->camera_calib_file_paths[i] << std::endl;
+    }
   }
   doRectify = true;
-  
+
   load_calibration();
   startMultiCapture();
 }
@@ -118,14 +120,14 @@ void adas::CameraStreamer::startMultiCapture() {
     if (!isUSBCamera) {
       std::string url = camera_source[i];
       capture = new cv::VideoCapture(url);
-      std::cout << "Camera Setup: " << url << std::endl;
+      std::cout << "[INFO] Camera Setup: " << url << std::endl;
     } else {
       int idx = camera_index[i];
       if (idx < 0) {
-        std::cout << "Invalid camera index: " << idx << std::endl;
+        std::cout << "[INFO] Invalid camera index: " << idx << std::endl;
         std::abort();
       } else {
-        std::cout << "Camera index: " << idx << std::endl;
+        std::cout << "[INFO] Camera index: " << idx << std::endl;
         camera_device = "/dev/video" + std::to_string(idx);
       }
 
@@ -134,7 +136,7 @@ void adas::CameraStreamer::startMultiCapture() {
       capture = new cv::VideoCapture(camera_device);
       capture->set(cv::CAP_PROP_FRAME_WIDTH, 1920);
       capture->set(cv::CAP_PROP_FRAME_HEIGHT, 1080);
-      std::cout << "Camera Setup: " << camera_device << std::endl;
+      std::cout << "[INFO] Camera Setup completed for Device ID: " << camera_device << std::endl;
     }
 
     // Put VideoCapture to the vector

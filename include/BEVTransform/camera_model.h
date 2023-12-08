@@ -33,6 +33,7 @@ namespace fs = std::experimental::filesystem;
 
 #define SMARTCAM_CAMERA_CALIB_FILE "../assets/configs/bev_calib.txt"
 
+
 class CameraModel {
   BirdViewModel birdview_model;
 
