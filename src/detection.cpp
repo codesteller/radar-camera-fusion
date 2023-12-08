@@ -1,7 +1,7 @@
 /**
  * @ Author: Pallab Maji
  * @ Create Time: 2023-11-20 15:29:23
- * @ Modified time: 2023-12-05 10:26:38
+ * @ Modified time: 2023-12-08 10:57:14
  * @ Description: Enter description here
  */
 #include "detection.h"
@@ -78,8 +78,10 @@ adas::CameraStreamer::CameraStreamer(std::vector<int> capture_index, std::vector
   camera_count = capture_index.size();
   isUSBCamera = true;
   this->camera_calib_file_paths = file_paths;
-  for (int i = 0; i < camera_count; i++) {
-    std::cout << "[HERE] Camera Calibration File Path: " << this->camera_calib_file_paths[i] << std::endl;
+  if (LOG_DEBUG_LEVEL)}{
+    for (int i = 0; i < camera_count; i++) {
+    std::cout << "[INFO] Camera Calibration File Path: " << this->camera_calib_file_paths[i] << std::endl;
+  }
   }
   doRectify = true;
   
@@ -155,7 +157,6 @@ void adas::CameraStreamer::startMultiCapture() {
 void adas::CameraStreamer::load_calibration() {
   std::string path = this->camera_calib_file_paths[0];
   
-    std::cout << "[HERE2] Camera Calibration File Path: " << path << std::endl;
     // Read Calibration File using OpenCV
     cv::FileStorage cam_settings(path, cv::FileStorage::READ);
     // bool read_ok = cam_settings.isOpened();
