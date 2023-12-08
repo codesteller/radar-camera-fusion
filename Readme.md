@@ -46,5 +46,12 @@ docker pull tensorrt-ubuntu22.04-cuda11.8-cudnn8.2.4.15-runtime:latest
 
 
 ## Usage
+* Git Clone the repository
+* Run the start demo
+  * This will build the docker container and run the demo inside it
+```
+chmod +x startup.sh
+./startup.sh
+```  
 
 
