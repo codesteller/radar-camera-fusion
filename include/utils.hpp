@@ -1,7 +1,7 @@
 /**
  * @ Author: Pallab Maji
  * @ Create Time: 2023-11-20 13:57:59
- * @ Modified time: 2023-12-07 17:56:55
+ * @ Modified time: 2023-12-07 20:40:24
  * @ Description: Enter description here
  */
 
@@ -18,6 +18,7 @@
 #include "common.hpp"
 #include "detection.h"
 #include "opencv2/opencv.hpp"
+#include "BEVTransform/camera_model.h"
 
 #define LOG_DEBUG_FLAG 1
 // #define NUM_CAMERA 2
@@ -30,6 +31,8 @@ struct calib_params {
   cv::Mat camera_matrix;
   cv::Mat dist_coeffs;
 };
+
+// get calibration parameters from yaml file
 
 struct calib_params get_calibration_params(std::string config_file) {
   YAML::Node config = YAML::LoadFile(config_file);
@@ -78,7 +81,8 @@ void draw_tracked_objects(
     const std::vector<byte_track::BYTETracker::STrackPtr> &tracked_objects,
     const std::vector<det::Object> &detected_objs,
     const std::vector<cv::String> CLASS_NAMES,
-    std::vector<cvflann::lsh::Bucket> COLORS) {
+    std::vector<cvflann::lsh::Bucket> COLORS,
+    std::vector<float> distances) {
   dest_image = image.clone();
   unsigned int idx = 0;
 
@@ -111,7 +115,7 @@ void draw_tracked_objects(
           dest_image, cv::Point(rect.x(), rect.y()),
           cv::Point(rect.x() + rect.width(), rect.y() + rect.height()),
           color, 2);
-      cv::putText(dest_image, std::to_string(track_id),
+      cv::putText(dest_image, std::to_string(track_id) + " @ " + std::to_string(distances[idx]) + "m",
                   cv::Point(rect.x(), rect.y()), cv::FONT_HERSHEY_COMPLEX, 1,
                   cv::Scalar(0, 255, 0), 2);
     

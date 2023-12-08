@@ -1,0 +1,11 @@
+roi_tl_x: 0.088542
+roi_tl_y: 0.141176
+roi_tr_x: 0.128125
+roi_tr_y: 0.200000
+roi_br_x: 0.128125
+roi_br_y: 0.200000
+roi_bl_x: 0.070312
+roi_br_y: 0.200000
+camera_height: 0.9
+image_width: 1920
+image_height: 1020

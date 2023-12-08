@@ -3,6 +3,13 @@ project(adas_fusion)
 
 # cmake_policy(SET CMP0146 OLD)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_CXX_FLAGS "-Wall -Wextra")
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
 set(CMAKE_CUDA_ARCHITECTURES 60 61 62 70 72 75 86 89 90)
 set(CMAKE_CUDA_COMPILER /usr/local/cuda/bin/nvcc)
 
@@ -67,12 +74,14 @@ list(APPEND INCLUDE_DIRS
         include
         )
 
+link_libraries(stdc++fs)
 list(APPEND ALL_LIBS
         ${CUDA_LIBRARIES}
         ${CUDA_LIB_DIR}
         ${OpenCV_LIBRARIES}
         ${TensorRT_LIBRARIES}
         ${TBB_LIBRARIES}
+        ${TBB_LIBS}
         )
 
 include_directories(${INCLUDE_DIRS})
@@ -87,7 +96,9 @@ add_executable(${PROJECT_NAME}
         src/STrack.cpp 
         src/lapjv.cpp
         src/KalmanFilter.cpp
+        src/birdview_model.cpp 
+        src/camera_model.cpp
         )
 
 target_link_directories(${PROJECT_NAME} PUBLIC ${ALL_LIBS})
-target_link_libraries(${PROJECT_NAME} PRIVATE nvinfer nvinfer_plugin cudart ${TBB_LIBS} ${OpenCV_LIBS} ${YAML_CPP_LIBRARIES} Eigen3::Eigen)
+target_link_libraries(${PROJECT_NAME} PRIVATE nvinfer nvinfer_plugin cudart ${TBB_LIBS} ${TBB_LIBRARIES} ${OpenCV_LIBS} ${YAML_CPP_LIBRARIES} Eigen3::Eigen)
