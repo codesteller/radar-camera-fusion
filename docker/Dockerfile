@@ -16,12 +16,7 @@ WORKDIR /workspace
 RUN apt-get update -y && apt-get upgrade -y
 RUN apt-get install  qtbase5-dev qt5-qmake qtcreator \
     qt5-doc qt5-doc-html qtbase5-doc-html qtbase5-examples qtmultimedia5-dev -y
-RUN apt update && apt-get install -y python-dev python-numpy \
-  python3 python3-pip python3-dev libtbb2 libtbb-dev \
-  libjpeg-dev libjasper-dev libdc1394-22-dev \
-  python-opencv libopencv-dev libav-tools python-pycurl \
-  libatlas-base-dev gfortran webp qt5-default libvtk6-dev zlib1g-dev
-RUN apt update && apt install -y cmake g++ wget unzip git
+RUN apt-get update && apt install -y cmake g++ wget unzip git
 RUN apt-get install protobuf-compiler libprotobuf-dev -y
 
 RUN apt-get update -y && apt install -y v4l-utils fswebcam libopencv-dev python3-opencv
