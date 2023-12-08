@@ -23,6 +23,27 @@ The fusion of radar and video data is achieved by associating the detected objec
 
 This code provides a basic implementation of radar-camera fusion and can be extended and customized for specific applications and requirements. It serves as a starting point for developing more advanced radar-camera fusion systems for various applications such as autonomous driving, surveillance, and robotics.
 
+## Installation
+### NGC Container
+We are usingf TensorRT container from NGC. The container can be pulled from NGC using the following steps:
+* Login to NGC and setup NGC account using you nvidia developers email id.
+```bash
+docker login nvcr.io
+docker pull tensorrt-ubuntu22.04-cuda11.8-cudnn8.2.4.15-runtime:latest
+```
+
+### Dependencies
+* [OpenCV](https://opencv.org/)
+* [TensorRT 8.6](https://developer.nvidia.com/tensorrt)
+* [CUDA 11.8](https://developer.nvidia.com/cuda-toolkit)
+* [cuDNN 8.9.4](https://developer.nvidia.com/cudnn)
+* [Qt 5.15.2](https://www.qt.io/)
+* [TI AWR1843Boost Radar SDK](https://www.ti.com/tool/AWR1843BOOST)
+* [Yolo V8](https://github.com/ultralytics/ultralytics.git)
+* [oneTBB](https://github.com/oneapi-src/oneTBB)
+* [YAML-CPP](https://github.com/jbeder/yaml-cpp.git)
+
+
 ## Usage
 
 
