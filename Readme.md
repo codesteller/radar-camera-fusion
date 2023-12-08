@@ -4,14 +4,15 @@
 - [x] Video streaming from USB Camera 
 - [x] Multi-Camera streaming from multiple USB Cameras (Multi Threaded)
 - [x] Object detection with Yolo V8s  
-- [ ] Object detection refactoring using classes
 - [x] tracking using OpenCV and ByteTracker
+- [x] Video BEV Projection
+- [x] Docker Build System
 - [ ] Interfacing Radar with TI AWR1843Boost Radar SDK
 - [ ] Object detection and tracking using Radar
 - [ ] Radar-Video Soft Synchronization
-- [x] Video BEV Projection
 - [ ] Radar-Video Calibration
 - [ ] Radar-Video Fusion
+- [ ] Object detection refactoring using classes
 - [ ] Multi Threaded Optimization
 
 ## Overview 
