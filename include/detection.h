@@ -1,7 +1,7 @@
 /**
  * @ Author: Pallab Maji
  * @ Create Time: 2023-11-20 14:32:08
- * @ Modified time: 2023-12-08 10:58:01
+ * @ Modified time: 2023-12-11 11:05:50
  * @ Description: Enter description here
  */
 
@@ -13,7 +13,7 @@
 #include <string>
 #include <thread>
 #include <vector>
-#include <oneapi/tbb/concurrent_queue.h>
+// #include <oneapi/tbb/concurrent_queue.h>
 #include <opencv2/opencv.hpp>
 #include "yolov8.hpp"
 #include "opencv2/highgui.hpp"
@@ -77,46 +77,46 @@ namespace adas
 
     }; // class CameraPipeline
 
-    class CameraStreamer
-    {
-    public:
-        // this holds camera stream urls
-        std::vector<std::string> camera_source;
-        // this holds usb camera indices
-        std::vector<int> camera_index;
-        // this holds OpenCV VideoCapture pointers
-        std::vector<cv::VideoCapture *> camera_capture;
-        // this holds queue(s) which hold images from each camera
-        std::vector<oneapi::tbb::concurrent_queue<cv::Mat> *> frame_queue;
-        // this holds thread(s) which run the camera capture process
-        std::vector<std::thread *> camera_thread;
-        // this holds the camera configuration file path
-        std::vector<std::string> camera_calib_file_paths;
-        // Constructor for Camera Device or RTSP URL capture
-        CameraStreamer(std::vector<std::string> source);
-        // Constructor for USB Camera capture
-        CameraStreamer(std::vector<int> index);
-        // Constructor for USB Camera capture with calibration file
-        CameraStreamer(std::vector<int> index, std::vector<std::string> camera_calib_file_path);
-        // Destructor for releasing resource(s)
-        ~CameraStreamer();
+    // class CameraStreamer
+    // {
+    // public:
+    //     // this holds camera stream urls
+    //     std::vector<std::string> camera_source;
+    //     // this holds usb camera indices
+    //     std::vector<int> camera_index;
+    //     // this holds OpenCV VideoCapture pointers
+    //     std::vector<cv::VideoCapture *> camera_capture;
+    //     // this holds queue(s) which hold images from each camera
+    //     // std::vector<oneapi::tbb::concurrent_queue<cv::Mat> *> frame_queue;
+    //     // this holds thread(s) which run the camera capture process
+    //     std::vector<std::thread *> camera_thread;
+    //     // this holds the camera configuration file path
+    //     std::vector<std::string> camera_calib_file_paths;
+    //     // Constructor for Camera Device or RTSP URL capture
+    //     CameraStreamer(std::vector<std::string> source);
+    //     // Constructor for USB Camera capture
+    //     CameraStreamer(std::vector<int> index);
+    //     // Constructor for USB Camera capture with calibration file
+    //     CameraStreamer(std::vector<int> index, std::vector<std::string> camera_calib_file_path);
+    //     // Destructor for releasing resource(s)
+    //     ~CameraStreamer();
         
 
-    private:
-        bool isUSBCamera;
-        bool doRectify;
-        int camera_count;
-        // initialize and start the camera capturing process(es)
-        void startMultiCapture();
-        // release all camera capture resource(s)
-        void stopMultiCapture();
-        // main camera capturing process which will be done by the thread(s)
-        void captureFrame(int index);
-        // Camera Frame Rectifier
-        void load_calibration(void);
-        void rectifyFrame(void);
+    // private:
+    //     bool isUSBCamera;
+    //     bool doRectify;
+    //     int camera_count;
+    //     // initialize and start the camera capturing process(es)
+    //     void startMultiCapture();
+    //     // release all camera capture resource(s)
+    //     void stopMultiCapture();
+    //     // main camera capturing process which will be done by the thread(s)
+    //     void captureFrame(int index);
+    //     // Camera Frame Rectifier
+    //     void load_calibration(void);
+    //     void rectifyFrame(void);
 
-    }; // class CameraStreamer
+    // }; // class CameraStreamer
 
 } // namespace adas
 

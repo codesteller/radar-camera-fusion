@@ -20,6 +20,14 @@ find_package(YAML-CPP REQUIRED)
 find_package(TBB CONFIG REQUIRED tbb)
 find_package(Boost REQUIRED COMPONENTS system filesystem)
 
+# Add TensorRT if separate installation
+# TensorRT
+set(TensorRT_DIR /opt/nvidia/TensorRT-8.6.1.6)
+set(TensorRT_INCLUDE_DIRS ${TensorRT_DIR}/include)
+set(TensorRT_LIBRARIES ${TensorRT_DIR}/lib)
+# message(STATUS "TensorRT Libs: \n${TensorRT_LIBRARIES}\n")
+# message(STATUS "TensorRT Headers: \n${TensorRT_INCLUDE_DIRS}\n")
+
 get_filename_component(CUDA_LIB_DIR ${CUDA_LIBRARIES} DIRECTORY)
 
 list(APPEND INCLUDE_DIRS
