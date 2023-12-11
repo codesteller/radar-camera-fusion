@@ -6,11 +6,13 @@ from threading import Thread  # library for implementing multi-threaded processi
 
 # defining a helper class for implementing multi-threaded processing
 class WebcamStream:
-    def __init__(self, stream_id=0):
+    def __init__(self, stream_id=0, frame_size=(640, 480)):
         self.stream_id = stream_id  # default is 0 for primary camera
 
         # opening video capture stream
         self.vcap = cv2.VideoCapture(self.stream_id)
+        self.vcap.set(cv2.CAP_PROP_FRAME_WIDTH, frame_size[0])
+        self.vcap.set(cv2.CAP_PROP_FRAME_HEIGHT, frame_size[1])
         if self.vcap.isOpened() is False:
             print("[Exiting]: Error accessing webcam stream.")
             exit(0)
@@ -59,7 +61,7 @@ webcam_stream = WebcamStream(stream_id=0)  #  stream_id = 0 is for primary camer
 webcam_stream.start()
 
 # initializing and starting multi-threaded webcam capture input stream 1
-webcam_stream_1 = WebcamStream(stream_id=2)  #  stream_id = 2 is for primary camera
+webcam_stream_1 = WebcamStream(stream_id=4, frame_size=(1920, 1080))  #  stream_id = 2 is for primary camera
 webcam_stream_1.start()
 
 # processing frames in input stream
