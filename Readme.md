@@ -1,10 +1,16 @@
 # Radar Camera Fusion with TI AWR1843Boost Radar and a USB Camera
 
 ## ToDo
+## ToDo
 - [x] Video streaming from USB Camera 
 - [x] Multi-Camera streaming from multiple USB Cameras (Multi Threaded)
+- [x] Video Rectification optimization
+  - [x] Video Resize
+  - [x] Precompute MapX and MapY
 - [x] Object detection with Yolo V8s  
-- [x] tracking using OpenCV and ByteTracker
+- [x] Tracking using OpenCV and ByteTracker
+  - [x] Optimize the tracking code with multi-threading
+  - [x] Optimize tracking using pre computed features
 - [x] Video BEV Projection
 - [x] Docker Build System
 - [ ] Interfacing Radar with TI AWR1843Boost Radar SDK
@@ -12,7 +18,7 @@
 - [ ] Radar-Video Soft Synchronization
 - [ ] Radar-Video Calibration
 - [ ] Radar-Video Fusion
-- [ ] Object detection refactoring using classes
+- [x] Object detection refactoring using classes
 - [ ] Multi Threaded Optimization
 
 ## Overview 
