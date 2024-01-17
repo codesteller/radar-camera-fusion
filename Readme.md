@@ -1,6 +1,4 @@
 # Radar Camera Fusion with TI AWR1843Boost Radar and a USB Camera
-
-## ToDo
 ## ToDo
 - [x] Video streaming from USB Camera 
 - [x] Multi-Camera streaming from multiple USB Cameras (Multi Threaded)
